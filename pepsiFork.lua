@@ -7298,7 +7298,7 @@ function library:CreateWindow(options, ...)
 	windowFunctions.NewTab = windowFunctions.CreateTab
 	windowFunctions.Tab = windowFunctions.CreateTab
 	windowFunctions.T = windowFunctions.CreateTab
-	function windowFunctions:CreateDesigner(options, ...)
+function windowFunctions:CreateDesigner(options, ...)
 	options = (options and type(options) == "string" and resolvevararg("Tab", options, ...)) or options
 	assert(shared.bypasstablimit or (library.Designer == nil), "Designer already exists")
 	options = options or {}
@@ -7306,10 +7306,20 @@ function library:CreateWindow(options, ...)
 	options.LastTab = true
 	local designer = windowFunctions:CreateTab(options)
 	
-	local filessection = designer:CreateSection({
-		Name = "Profiles"
+	local colorsection = designer:CreateSection({
+		Name = "Colors"
 	})
-	
+	local backgroundsection = designer:CreateSection({
+		Name = "Background",
+		Side = "right"
+	})
+	local detailssection = designer:CreateSection({
+		Name = "More Info"
+	})
+	local filessection = designer:CreateSection({
+		Name = "Profiles",
+		Side = "left"
+	})
 	local settingssection = designer:CreateSection({
 		Name = "Settings",
 		Side = "right"
@@ -7317,6 +7327,23 @@ function library:CreateWindow(options, ...)
 	
 	local designerelements = {}
 	library.designerelements = designerelements
+	
+	for _, v in next, {{"Main", "main"}, {"Background", "background"}, {"Outer Border", "outerBorder"}, {"Inner Border", "innerBorder"}, {"Top Gradient", "topGradient"}, {"Bottom Gradient", "bottomGradient"}, {"Section Background", "sectionBackground"}, {"Section", "section"}, {"Element Text", "elementText"}, {"Other Element Text", "otherElementText"}, {"Tab Text", "tabText"}, {"Element Border", "elementBorder"}, {"Selected Option", "selectedOption"}, {"Unselected Option", "unselectedOption"}, {"Hovered Option Top", "hoveredOptionTop"}, {"Unhovered Option Top", "unhoveredOptionTop"}, {"Hovered Option Bottom", "hoveredOptionBottom"}, {"Unhovered Option Bottom", "unhoveredOptionBottom"}} do
+		local nam, codename = v[1], v[2]
+		local cflag = "__Designer.Colors." .. codename
+		designerelements[codename] = {
+			Return = colorsection:AddColorpicker({
+				Name = nam,
+				Flag = cflag,
+				Value = library.colors[codename],
+				Callback = function(v, y)
+					library.colors[codename] = v or y
+				end,
+				__designer = 1
+			}),
+			Flag = cflag
+		}
+	end
 	
 	local flags = {}
 	local persistoptions = {
@@ -7328,46 +7355,116 @@ function library:CreateWindow(options, ...)
 		Desginer = true
 	}
 	
-	local daaata = {
-		{"AddPersistence", "__Designer.Persistence.ThemeFile", filessection, {
-			Name = "Theme Profile",
-			Flag = "__Designer.Files.ThemeFile",
-			Workspace = "Pepsi Lib Themes",
-			Flags = flags,
-			Suffix = "Theme",
-			Desginer = true
-		}},
-		{"AddTextbox", "__Designer.Textbox.WorkspaceName", filessection, {
-			Name = "Workspace Name",
-			Value = library.WorkspaceName or "Unnamed Workspace",
-			Flag = "__Designer.Files.WorkspaceFile",
-			Callback = function(n, o)
-				persistoptions.Workspace = n or o
-			end
-		}},
-		{"AddPersistence", "__Designer.Persistence.WorkspaceProfile", filessection, persistoptions},
-		{"AddButton", "__Designer.Button.TerminateGUI", settingssection, {{
-			Name = "Terminate GUI",
-			Callback = library.unload
-		}}},
-		{"AddKeybind", "__Designer.Keybind.ShowHideKey", settingssection, {
-			Name = "Show/Hide Key",
-			Location = library.configuration,
-			Flag = "__Designer.Settings.ShowHideKey",
-			LocationFlag = "hideKeybind",
-			Value = library.configuration.hideKeybind,
-			CoreBinding = true,
-			Callback = function()
-				lasthidebing = os.clock()
-			end
-		}},
-		{"AddLabel", "__Designer.Label.Version", settingssection, {
-			Name = "Library Version: " .. tostring(library.Version or "?")
-		}}
-	}
+	local daaata = {{"AddTextbox", "__Designer.Textbox.ImageAssetID", backgroundsection, {
+		Name = "Image Asset ID",
+		Placeholder = "rbxassetid://4427304036",
+		Flag = "__Designer.Background.ImageAssetID",
+		Value = "rbxassetid://4427304036",
+		Callback = updatecolorsnotween
+	}}, {"AddColorpicker", "__Designer.Colorpicker.ImageColor", backgroundsection, {
+		Name = "Image Color",
+		Flag = "__Designer.Background.ImageColor",
+		Value = Color3.new(1, 1, 1),
+		Callback = updatecolorsnotween,
+		__designer = 1
+	}}, {"AddSlider", "__Designer.Slider.ImageTransparency", backgroundsection, {
+		Name = "Image Transparency",
+		Flag = "__Designer.Background.ImageTransparency",
+		Value = 95,
+		Min = 0,
+		Max = 100,
+		Format = "Image Transparency: %s%%",
+		Textbox = true,
+		Callback = updatecolorsnotween
+	}}, {"AddToggle", "__Designer.Toggle.UseBackgroundImage", backgroundsection, {
+		Name = "Use Background Image",
+		Flag = "__Designer.Background.UseBackgroundImage",
+		Value = true,
+		Callback = updatecolorsnotween
+	}}, {"AddPersistence", "__Designer.Persistence.ThemeFile", filessection, {
+		Name = "Theme Profile",
+		Flag = "__Designer.Files.ThemeFile",
+		Workspace = "Pepsi Lib Themes",
+		Flags = flags,
+		Suffix = "Theme",
+		Desginer = true
+	}}, {"AddTextbox", "__Designer.Textbox.WorkspaceName", filessection, {
+		Name = "Workspace Name",
+		Value = library.WorkspaceName or "Unnamed Workspace",
+		Flag = "__Designer.Files.WorkspaceFile",
+		Callback = function(n, o)
+			persistoptions.Workspace = n or o
+		end
+	}}, {"AddPersistence", "__Designer.Persistence.WorkspaceProfile", filessection, persistoptions}, {"AddButton", "__Designer.Button.TerminateGUI", settingssection, {{
+		Name = "Terminate GUI",
+		Callback = library.unload
+	}}}, {"AddKeybind", "__Designer.Keybind.ShowHideKey", settingssection, {
+		Name = "Show/Hide Key",
+		Location = library.configuration,
+		Flag = "__Designer.Settings.ShowHideKey",
+		LocationFlag = "hideKeybind",
+		Value = library.configuration.hideKeybind,
+		CoreBinding = true,
+		Callback = function()
+			lasthidebing = os.clock()
+		end
+	}}, {"AddLabel", "__Designer.Label.Version", settingssection, {
+		Name = "Library Version: " .. tostring(library.Version or "?")
+	}}}
+	
+	if setclipboard and daaata[8] then
+		local common_table = daaata[8][4]
+		if common_table then
+			common_table[1 + #common_table] = {
+				Name = "Copy Theme",
+				Callback = function()
+					local working_with = {}
+					if #flags > 0 then
+						for k, cflag in next, flags do
+							if k > 0 then
+								local data = elements[cflag]
+								if data and (data.Type ~= "Persistence") and (string.sub(cflag, 1, 11) == "__Designer.") then
+									working_with[cflag] = data
+								end
+							end
+						end
+					end
+					local saving = {}
+					for cflag in next, working_with do
+						local value = library_flags[cflag]
+						local good, jval = nil, nil
+						if value ~= nil then
+							good, jval = JSONEncode(value)
+						else
+							good, jval = true, "null"
+						end
+						if not good or ((jval == "null") and (value ~= nil)) then
+							local typ = typeof(value)
+							if typ == "Color3" then
+								value = (library.rainbowflags[cflag] and "rainbow") or Color3ToHex(value)
+							end
+							value = tostring(value)
+							good, jval = JSONEncode(value)
+							if not good or ((jval == "null") and (value ~= nil)) then
+								warn("Could not save value:", value, debug.traceback(""))
+							end
+						end
+						if good and jval then
+							saving[cflag] = value
+						end
+					end
+					local good, content = JSONEncode(saving)
+					if good and content then
+						setclipboard(content)
+					end
+				end
+			}
+			common_table = nil
+		end
+	end
 	
 	if options.Credit ~= false then
-		daaata[1 + #daaata] = {"AddLabel", "__Designer.Label.Creator", filessection, {
+		daaata[1 + #daaata] = {"AddLabel", "__Designer.Label.Creator", detailssection, {
 			Text = "Library by Pepsi#5229 "
 		}}
 	end
@@ -7375,12 +7472,12 @@ function library:CreateWindow(options, ...)
 	if options.Info then
 		local typ = type(options.Info)
 		if typ == "string" then
-			daaata[1 + #daaata] = {"AddLabel", "__Designer.Label.Info", filessection, {
+			daaata[1 + #daaata] = {"AddLabel", "__Designer.Label.Info", detailssection, {
 				Text = options.Info
 			}}
 		elseif typ == "table" and #options.Info > 0 then
 			for _, v in next, options.Info do
-				daaata[1 + #daaata] = {"AddLabel", "__Designer.Label.Info", filessection, {
+				daaata[1 + #daaata] = {"AddLabel", "__Designer.Label.Info", detailssection, {
 					Text = tostring(v)
 				}}
 			end
@@ -7469,29 +7566,11 @@ function library:CreateWindow(options, ...)
 	
 	spawn(updatecolorsnotween)
 	
-	local dorlod = nil
-	if options.HideTheme then
-		designer.Remove()
-		dorlod = true
-	elseif options.LockTheme then
-		if designerelements then
-			local thing = designerelements["__Designer.Persistence.ThemeFile"]
-			if thing then
-				thing.Remove()
-				dorlod = true
-			end
-			thing = designerelements["__Designer.Button.TerminateGUI"]
-			thing = thing and thing[3]
-			if thing then
-				thing.Remove()
-				dorlod = true
-			end
-		end
-	end
+	colorsection.Remove()
+	backgroundsection.Remove()
+	detailssection.Remove()
 	
-	if dorlod then
-		windowFunctions:UpdateAll()
-	end
+	windowFunctions:UpdateAll()
 	
 	return library.Designer
 end
