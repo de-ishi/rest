@@ -7299,116 +7299,58 @@ function library:CreateWindow(options, ...)
 	windowFunctions.Tab = windowFunctions.CreateTab
 	windowFunctions.T = windowFunctions.CreateTab
 	function windowFunctions:CreateDesigner(options, ...)
-		options = (options and type(options) == "string" and resolvevararg("Tab", options, ...)) or options
-		assert(shared.bypasstablimit or (library.Designer == nil), "Designer already exists")
-		options = options or {}
-		options.Image = options.Image or 7483871523
-		options.LastTab = true
-		local designer = windowFunctions:CreateTab(options)
-		local colorsection = designer:CreateSection({
-			Name = "Colors"
-		})
-		local backgroundsection = designer:CreateSection({
-			Name = "Background",
-			Side = "right"
-		})
-		local detailssection = designer:CreateSection({
-			Name = "More Info"
-		})
-		local filessection = designer:CreateSection({
-			Name = "Profiles",
-			Side = "right"
-		})
-		local settingssection = designer:CreateSection({
-			Name = "Settings",
-			Side = "right"
-		})
-		local designerelements = {}
-		library.designerelements = designerelements
-		for _, v in next, {{"Main", "main"}, {"Background", "background"}, {"Outer Border", "outerBorder"}, {"Inner Border", "innerBorder"}, {"Top Gradient", "topGradient"}, {"Bottom Gradient", "bottomGradient"}, {"Section Background", "sectionBackground"}, {"Section", "section"}, {"Element Text", "elementText"}, {"Other Element Text", "otherElementText"}, {"Tab Text", "tabText"}, {"Element Border", "elementBorder"}, {"Selected Option", "selectedOption"}, {"Unselected Option", "unselectedOption"}, {"Hovered Option Top", "hoveredOptionTop"}, {"Unhovered Option Top", "unhoveredOptionTop"}, {"Hovered Option Bottom", "hoveredOptionBottom"}, {"Unhovered Option Bottom", "unhoveredOptionBottom"}} do
-			local nam, codename = v[1], v[2]
-			local cflag = "__Designer.Colors." .. codename
-			designerelements[codename] = {
-				Return = colorsection:AddColorpicker({
-					Name = nam,
-					Flag = cflag,
-					Value = library.colors[codename],
-					Callback = function(v, y)
-						library.colors[codename] = v or y
-					end,
-					__designer = 1
-				}),
-				Flag = cflag
-			}
-		end
-		local flags = {}
-		local persistoptions = {
-			Name = "Workspace Profile",
-			Flag = "__Designer.Background.WorkspaceProfile",
-			Flags = true,
-			Suffix = "Config",
-			Workspace = library.WorkspaceName or "Unnamed Workspace",
-			Desginer = true
-		}
-		local daaata = {{"AddTextbox", "__Designer.Textbox.ImageAssetID", backgroundsection, {
-			Name = "Image Asset ID",
-			Placeholder = "rbxassetid://4427304036",
-			Flag = "__Designer.Background.ImageAssetID",
-			Value = "rbxassetid://4427304036",
-			Callback = updatecolorsnotween
-		}}, {"AddColorpicker", "__Designer.Colorpicker.ImageColor", backgroundsection, {
-			Name = "Image Color",
-			Flag = "__Designer.Background.ImageColor",
-			Value = Color3.new(1, 1, 1),
-			Callback = updatecolorsnotween,
-			__designer = 1
-		}}, {"AddSlider", "__Designer.Slider.ImageTransparency", backgroundsection, {
-			Name = "Image Transparency",
-			Flag = "__Designer.Background.ImageTransparency",
-			Value = 95,
-			Min = 0,
-			Max = 100,
-			Format = "Image Transparency: %s%%",
-			Textbox = true,
-			Callback = updatecolorsnotween
-		}}, {"AddToggle", "__Designer.Toggle.UseBackgroundImage", backgroundsection, {
-			Name = "Use Background Image",
-			Flag = "__Designer.Background.UseBackgroundImage",
-			Value = true,
-			Callback = updatecolorsnotween
-		}}, {"AddPersistence", "__Designer.Persistence.ThemeFile", filessection, {
+	options = (options and type(options) == "string" and resolvevararg("Tab", options, ...)) or options
+	assert(shared.bypasstablimit or (library.Designer == nil), "Designer already exists")
+	options = options or {}
+	options.Image = options.Image or 7483871523
+	options.LastTab = true
+	local designer = windowFunctions:CreateTab(options)
+	
+	local filessection = designer:CreateSection({
+		Name = "Profiles"
+	})
+	
+	local settingssection = designer:CreateSection({
+		Name = "Settings",
+		Side = "right"
+	})
+	
+	local designerelements = {}
+	library.designerelements = designerelements
+	
+	local flags = {}
+	local persistoptions = {
+		Name = "Workspace Profile",
+		Flag = "__Designer.Background.WorkspaceProfile",
+		Flags = true,
+		Suffix = "Config",
+		Workspace = library.WorkspaceName or "Unnamed Workspace",
+		Desginer = true
+	}
+	
+	local daaata = {
+		{"AddPersistence", "__Designer.Persistence.ThemeFile", filessection, {
 			Name = "Theme Profile",
 			Flag = "__Designer.Files.ThemeFile",
 			Workspace = "Pepsi Lib Themes",
 			Flags = flags,
 			Suffix = "Theme",
 			Desginer = true
-		}}, {"AddTextbox", "__Designer.Textbox.WorkspaceName", filessection, {
+		}},
+		{"AddTextbox", "__Designer.Textbox.WorkspaceName", filessection, {
 			Name = "Workspace Name",
 			Value = library.WorkspaceName or "Unnamed Workspace",
 			Flag = "__Designer.Files.WorkspaceFile",
 			Callback = function(n, o)
 				persistoptions.Workspace = n or o
 			end
-		}}, {"AddPersistence", "__Designer.Persistence.WorkspaceProfile", filessection, persistoptions}, {"AddButton", "__Designer.Button.TerminateGUI", settingssection, {{
+		}},
+		{"AddPersistence", "__Designer.Persistence.WorkspaceProfile", filessection, persistoptions},
+		{"AddButton", "__Designer.Button.TerminateGUI", settingssection, {{
 			Name = "Terminate GUI",
 			Callback = library.unload
-		}, {
-			Name = "Reset GUI",
-			Callback = resetall
-		}, {
-			Name = "Reset Designer",
-			Callback = function()
-				destroyrainbows = true
-				pcall(function()
-					for k, v in next, elements do
-						if v and k and v.Set and (v.Default ~= nil) and (library_flags[k] ~= v.Default) and (string.sub(k, 1, 11) == "__Designer.") then
-							v:Set(v.Default)
-						end
-					end
-				end)
-			end
-		}}}, {"AddKeybind", "__Designer.Keybind.ShowHideKey", settingssection, {
+		}}},
+		{"AddKeybind", "__Designer.Keybind.ShowHideKey", settingssection, {
 			Name = "Show/Hide Key",
 			Location = library.configuration,
 			Flag = "__Designer.Settings.ShowHideKey",
@@ -7418,183 +7360,141 @@ function library:CreateWindow(options, ...)
 			Callback = function()
 				lasthidebing = os.clock()
 			end
-		}}, {"AddLabel", "__Designer.Label.Version", settingssection, {
+		}},
+		{"AddLabel", "__Designer.Label.Version", settingssection, {
 			Name = "Library Version: " .. tostring(library.Version or "?")
-		}}}
-		if setclipboard and daaata[8] then
-			local common_table = daaata[8][4]
-			if common_table then
-				common_table[1 + #common_table] = {
-					Name = "Copy Theme",
-					Callback = function()
-						local working_with = {}
-						if #flags > 0 then
-							for k, cflag in next, flags do
-								if k > 0 then
-									local data = elements[cflag]
-									if data and (data.Type ~= "Persistence") and (string.sub(cflag, 1, 11) == "__Designer.") then
-										working_with[cflag] = data
-									end
-								end
-							end
-						end
-						local saving = {}
-						for cflag in next, working_with do
-							local value = library_flags[cflag]
-							local good, jval = nil, nil
-							if value ~= nil then
-								good, jval = JSONEncode(value)
-							else
-								good, jval = true, "null"
-							end
-							if not good or ((jval == "null") and (value ~= nil)) then
-								local typ = typeof(value)
-								if typ == "Color3" then
-									value = (library.rainbowflags[cflag] and "rainbow") or Color3ToHex(value)
-								end
-								value = tostring(value)
-								good, jval = JSONEncode(value)
-								if not good or ((jval == "null") and (value ~= nil)) then
-									warn("Could not save value:", value, debug.traceback(""))
-								end
-							end
-							if good and jval then
-								saving[cflag] = value
-							end
-						end
-						local good, content = JSONEncode(saving)
-						if good and content then
-							setclipboard(content)
-						end
-					end
-				}
-				common_table = nil
-			end
-		end
-		if options.Credit ~= false then
-			daaata[1 + #daaata] = {"AddLabel", "__Designer.Label.Creator", detailssection, {
-				Text = "Library by Pepsi#5229 "
-			}}
-		elseif "Gee, thanks for your support." then
-		end
-		if options.Info then
-			local typ = type(options.Info)
-			if typ == "string" then
-				daaata[1 + #daaata] = {"AddLabel", "__Designer.Label.Creator", detailssection, {
-					Text = options.Info
-				}}
-			elseif typ == "table" and #options.Info > 0 then
-				for _, v in next, options.Info do
-					daaata[1 + #daaata] = {"AddLabel", "__Designer.Label.Creator", detailssection, {
-						Text = tostring(v)
-					}}
-				end
-			end
-		end
-		for _, v in next, daaata do
-			designerelements[v[2]] = v[3][v[1]](v[3], v[4])
-		end
-		designerelements["__Designer.Textbox.WorkspaceName"]:Set(library.WorkspaceName or "Unnamed Workspace")
-		for k, v in next, elements do
-			if v and k and string.sub(k, 1, 11) == "__Designer." and v.Type and v.Type ~= "Persistence" then
-				flags[1 + #flags] = k
-			end
-		end
-		if library.Backdrop then
-			library.Backdrop.Image = resolveid(library_flags["__Designer.Background.ImageAssetID"], "__Designer.Background.ImageAssetID") or ""
-			library.Backdrop.Visible = library_flags["__Designer.Background.UseBackgroundImage"] and true
-			library.Backdrop.ImageTransparency = (library_flags["__Designer.Background.ImageTransparency"] or 95) / 100
-			library.Backdrop.ImageColor3 = library_flags["__Designer.Background.ImageColor"] or Color3.new(1, 1, 1)
-		end
-		local function setbackground(t, Asset, Transparency, Visible)
-			if Visible == nil and t ~= nil and type(t) ~= "table" then
-				Asset, Transparency, Visible = t, Transparency, Visible
-			end
-			if Visible == 0 or ((Asset == 0 or Asset == false) and Visible == nil and Transparency == nil) then
-				Visible = false
-			elseif Visible == 1 or ((Asset == 1 or Asset == true) and Visible == nil and Transparency == nil) then
-				Visible = true
-			elseif Asset == nil and Transparency == nil and Visible == nil then
-				Visible = not library_flags["__Designer.Background.UseBackgroundImage"]
-			end
-			local temp = Asset and type(Asset)
-			if Transparency == nil and Visible == nil and temp == "number" and ((Asset ~= 1 and Asset ~= 0) or (Asset > 0 and Asset <= 100)) then
-				Transparency, Asset, temp = Asset, nil
-			end
-			if temp and ((temp == "number" and Asset > 1) or temp == "string") then
-				designerelements["__Designer.Textbox.ImageAssetID"]:Set(Asset)
-			end
-			temp = tonumber(Transparency)
-			temp = (temp >= 0 and temp <= 1 and temp * 100) or temp
-			if temp then
-				designerelements["__Designer.Slider.ImageTransparency"]:Set(temp)
-			end
-			if Visible ~= nil then
-				designerelements["__Designer.Toggle.UseBackgroundImage"]:Set(Visible and true)
-			end
-			return Asset, Transparency, Visible
-		end
-		local bk = options.Background or options.Backdrop or options.Grahpic
-		if bk then
-			if type(bk) == "table" then
-				setbackground(bk.Asset or bk[1], bk.Transparency or bk[2], bk.Visible or bk[3])
-			else
-				setbackground(bk, 0, 1)
-			end
-		end
-		library.Designer = {
-			Options = options,
-			Parent = windowFunctions,
-			Name = "Designer",
-			Flag = "Designer",
-			Type = "Designer",
-			Instance = designer,
-			SetBackground = setbackground,
-			Remove = designer.Remove
-		}
-		library.SetBackground = setbackground
-		local savestuff = library.elements["__Designer.Background.WorkspaceProfile"]
-		if savestuff then
-			library.LoadFile = savestuff.LoadFile
-			library.LoadFileRaw = savestuff.LoadFileRaw
-			library.LoadJSON = savestuff.LoadJSON
-			library.LoadJSONRaw = savestuff.LoadJSONRaw
-			library.SaveFile = savestuff.SaveFile
-			library.GetJSON = savestuff.GetJSON
-		end
-		spawn(updatecolorsnotween)
-		local dorlod = nil
-		if options.HideTheme then
-			designer.Remove()
-			dorlod = true
-		elseif options.LockTheme then
-			if colorsection then
-				colorsection.Remove()
-				dorlod = true
-			end
-			if backgroundsection then
-				backgroundsection.Remove()
-				dorlod = true
-			end
-			if designerelements then
-				local thing = designerelements["__Designer.Persistence.ThemeFile"]
-				if thing then
-					thing.Remove()
-					dorlod = true
-				end
-				thing = designerelements["__Designer.Button.TerminateGUI"]
-				thing = thing and thing[3]
-				if thing then
-					thing.Remove()
-					dorlod = true
-				end
-			end
-		end
-		if dorlod then
-			windowFunctions:UpdateAll()
-		end
-		return library.Designer
+		}}
+	}
+	
+	if options.Credit ~= false then
+		daaata[1 + #daaata] = {"AddLabel", "__Designer.Label.Creator", filessection, {
+			Text = "Library by Pepsi#5229 "
+		}}
 	end
+	
+	if options.Info then
+		local typ = type(options.Info)
+		if typ == "string" then
+			daaata[1 + #daaata] = {"AddLabel", "__Designer.Label.Info", filessection, {
+				Text = options.Info
+			}}
+		elseif typ == "table" and #options.Info > 0 then
+			for _, v in next, options.Info do
+				daaata[1 + #daaata] = {"AddLabel", "__Designer.Label.Info", filessection, {
+					Text = tostring(v)
+				}}
+			end
+		end
+	end
+	
+	for _, v in next, daaata do
+		designerelements[v[2]] = v[3][v[1]](v[3], v[4])
+	end
+	
+	designerelements["__Designer.Textbox.WorkspaceName"]:Set(library.WorkspaceName or "Unnamed Workspace")
+	
+	for k, v in next, elements do
+		if v and k and string.sub(k, 1, 11) == "__Designer." and v.Type and v.Type ~= "Persistence" then
+			flags[1 + #flags] = k
+		end
+	end
+	
+	if library.Backdrop then
+		library.Backdrop.Image = resolveid(library_flags["__Designer.Background.ImageAssetID"], "__Designer.Background.ImageAssetID") or ""
+		library.Backdrop.Visible = library_flags["__Designer.Background.UseBackgroundImage"] and true
+		library.Backdrop.ImageTransparency = (library_flags["__Designer.Background.ImageTransparency"] or 95) / 100
+		library.Backdrop.ImageColor3 = library_flags["__Designer.Background.ImageColor"] or Color3.new(1, 1, 1)
+	end
+	
+	local function setbackground(t, Asset, Transparency, Visible)
+		if Visible == nil and t ~= nil and type(t) ~= "table" then
+			Asset, Transparency, Visible = t, Transparency, Visible
+		end
+		if Visible == 0 or ((Asset == 0 or Asset == false) and Visible == nil and Transparency == nil) then
+			Visible = false
+		elseif Visible == 1 or ((Asset == 1 or Asset == true) and Visible == nil and Transparency == nil) then
+			Visible = true
+		elseif Asset == nil and Transparency == nil and Visible == nil then
+			Visible = not library_flags["__Designer.Background.UseBackgroundImage"]
+		end
+		local temp = Asset and type(Asset)
+		if Transparency == nil and Visible == nil and temp == "number" and ((Asset ~= 1 and Asset ~= 0) or (Asset > 0 and Asset <= 100)) then
+			Transparency, Asset, temp = Asset, nil
+		end
+		if temp and ((temp == "number" and Asset > 1) or temp == "string") then
+			designerelements["__Designer.Textbox.ImageAssetID"]:Set(Asset)
+		end
+		temp = tonumber(Transparency)
+		temp = (temp >= 0 and temp <= 1 and temp * 100) or temp
+		if temp then
+			designerelements["__Designer.Slider.ImageTransparency"]:Set(temp)
+		end
+		if Visible ~= nil then
+			designerelements["__Designer.Toggle.UseBackgroundImage"]:Set(Visible and true)
+		end
+		return Asset, Transparency, Visible
+	end
+	
+	local bk = options.Background or options.Backdrop or options.Grahpic
+	if bk then
+		if type(bk) == "table" then
+			setbackground(bk.Asset or bk[1], bk.Transparency or bk[2], bk.Visible or bk[3])
+		else
+			setbackground(bk, 0, 1)
+		end
+	end
+	
+	library.Designer = {
+		Options = options,
+		Parent = windowFunctions,
+		Name = "Designer",
+		Flag = "Designer",
+		Type = "Designer",
+		Instance = designer,
+		SetBackground = setbackground,
+		Remove = designer.Remove
+	}
+	
+	library.SetBackground = setbackground
+	
+	local savestuff = library.elements["__Designer.Background.WorkspaceProfile"]
+	if savestuff then
+		library.LoadFile = savestuff.LoadFile
+		library.LoadFileRaw = savestuff.LoadFileRaw
+		library.LoadJSON = savestuff.LoadJSON
+		library.LoadJSONRaw = savestuff.LoadJSONRaw
+		library.SaveFile = savestuff.SaveFile
+		library.GetJSON = savestuff.GetJSON
+	end
+	
+	spawn(updatecolorsnotween)
+	
+	local dorlod = nil
+	if options.HideTheme then
+		designer.Remove()
+		dorlod = true
+	elseif options.LockTheme then
+		if designerelements then
+			local thing = designerelements["__Designer.Persistence.ThemeFile"]
+			if thing then
+				thing.Remove()
+				dorlod = true
+			end
+			thing = designerelements["__Designer.Button.TerminateGUI"]
+			thing = thing and thing[3]
+			if thing then
+				thing.Remove()
+				dorlod = true
+			end
+		end
+	end
+	
+	if dorlod then
+		windowFunctions:UpdateAll()
+	end
+	
+	return library.Designer
+end
 	windowFunctions.AddDesigner = windowFunctions.CreateDesigner
 	windowFunctions.NewDesigner = windowFunctions.CreateDesigner
 	windowFunctions.Designer = windowFunctions.CreateDesigner
