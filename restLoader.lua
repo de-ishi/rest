@@ -4,4 +4,4 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/de-ishi/rest/refs/hea
 loadstring(game:HttpGet("https://raw.githubusercontent.com/de-ishi/rest/refs/heads/main/bote%20ried.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/de-ishi/rest/refs/heads/main/Abyss.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/de-ishi/rest/refs/heads/main/knockout.lua"))()
-
+loadstring(game:HttpGet("https://raw.githubusercontent.com/de-ishi/rest/refs/heads/main/MM2.lua"))()
