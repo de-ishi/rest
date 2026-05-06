@@ -9,3 +9,4 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/de-ishi/rest/refs/hea
 loadstring(game:HttpGet("https://raw.githubusercontent.com/de-ishi/rest/refs/heads/main/BULL_BATTLES.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/de-ishi/rest/refs/heads/main/monkey_game.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/de-ishi/rest/refs/heads/main/KickaLuckyBlock"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/de-ishi/rest/refs/heads/main/SailorPiece.lua"))()
